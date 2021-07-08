@@ -35,7 +35,8 @@ test_read_write(BufferedFileWriter<int>& writer, BufferedFileReader<int>& reader
   for (uint i = 0; i < numbers.size(); ++i) {
     numbers[i] = i;
     write_successful = writer.write(i);
-    BOOST_REQUIRE(write_successful);
+    if (!write_successful)
+      BOOST_REQUIRE(write_successful);
   }
 
   writer.close();
@@ -44,10 +45,13 @@ test_read_write(BufferedFileWriter<int>& writer, BufferedFileReader<int>& reader
   bool read_successful = false;
   for (uint i = 0; i < numbers.size(); ++i) {
     read_successful = reader.read(read_value);
-    if (!read_successful)
-      TLOG() << i << std::endl;
-    BOOST_REQUIRE(read_successful);
-    BOOST_REQUIRE_EQUAL(read_value, numbers[i]);
+    if (!read_successful) {
+      TLOG() << i;
+      BOOST_REQUIRE(read_successful);
+    }
+    if (read_value != numbers[i]) {
+      BOOST_REQUIRE_EQUAL(read_value, numbers[i]);
+    }
   }
 
   read_successful = reader.read(read_value);
@@ -175,7 +179,8 @@ BOOST_AUTO_TEST_CASE(BufferedReadWrite_superchunk)
   for (uint i = 0; i < chunks.size(); ++i) {
     memset(&chunks[i], i, sizeof(chunks[i]));
     bool write_successful = writer.write(chunks[i]);
-    BOOST_REQUIRE(write_successful);
+    if (!write_successful)
+      BOOST_REQUIRE(write_successful);
   }
   writer.close();
 
@@ -183,9 +188,11 @@ BOOST_AUTO_TEST_CASE(BufferedReadWrite_superchunk)
   types::WIB_SUPERCHUNK_STRUCT chunk;
   for (uint i = 0; i < chunks.size(); ++i) {
     bool read_successful = reader.read(chunk);
-    BOOST_REQUIRE(read_successful);
+    if (!read_successful)
+      BOOST_REQUIRE(read_successful);
     bool read_chunk_equals_written_chunk = !memcmp(&chunk, &chunks[i], sizeof(chunk));
-    BOOST_REQUIRE(read_chunk_equals_written_chunk);
+    if (!read_chunk_equals_written_chunk)
+      BOOST_REQUIRE(read_chunk_equals_written_chunk);
   }
   reader.close();
 

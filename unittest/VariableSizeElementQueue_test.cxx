@@ -50,9 +50,13 @@ BOOST_AUTO_TEST_CASE(VariableSizeElementQueue_find)
          expected_timestamp += 10) {
       uint32_t timestamp; // NOLINT(build/unsigned)
       types::VariableSizePayloadWrapper* found_element = queue.find_element(expected_timestamp);
-      BOOST_REQUIRE(found_element);
+      if (!found_element) {
+        BOOST_REQUIRE(found_element);
+      }
       std::memcpy(&timestamp, found_element->data.get(), sizeof(timestamp));
-      BOOST_REQUIRE_EQUAL(expected_timestamp, timestamp);
+      if (expected_timestamp != timestamp) {
+        BOOST_REQUIRE_EQUAL(expected_timestamp, timestamp);
+      }
     }
   }
 }
@@ -73,9 +77,13 @@ BOOST_AUTO_TEST_CASE(VariableSizeElementQueue_find_upper)
          expected_timestamp += 10) {
       uint32_t timestamp; // NOLINT(build/unsigned)
       types::VariableSizePayloadWrapper* found_element = queue.find_element(expected_timestamp);
-      BOOST_REQUIRE(found_element);
+      if (!found_element) {
+        BOOST_REQUIRE(found_element);
+      }
       std::memcpy(&timestamp, found_element->data.get(), sizeof(timestamp));
-      BOOST_REQUIRE_EQUAL(expected_timestamp + 5, timestamp);
+      if (expected_timestamp + 5 != timestamp) {
+        BOOST_REQUIRE_EQUAL(expected_timestamp + 5, timestamp);
+      }
     }
   }
 }
